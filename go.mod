@@ -1,4 +1,4 @@
-module github.com/JackieLi565/aog-data
+module github.com/JackieLi565/aogdata
 
 go 1.21.3
 
