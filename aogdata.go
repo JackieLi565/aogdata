@@ -14,7 +14,6 @@ import (
 )
 
 const siteURL = "https://adventofcode.com"
-// check for the newest problem
 
 func NewAOCData(year int, day int) (string, error) {
 	token, err := getSessionToken()
@@ -46,9 +45,26 @@ func getSessionToken() (string, error) {
 }
 
 func getURL(year int, day int) (string, error) {
-	isValidYear := year >= 2015 && year <= getCurrentYear(time.Now())
+	currentYear := getCurrentYear(time.Now())
+	isValidYear := year >= 2015 && year <= currentYear
 	isValidDay := day >= 1 && day <= 25
 
+	// checks to see if the newest problem has been released
+	if year == currentYear {
+		currentDay, err := getCurrentESTDay()
+		if err != nil {
+			return "", err
+		}
+
+		isValidCurrentDay := day >= 1 && day <= currentDay
+
+		if isValidCurrentDay {
+			isValidDay = isValidCurrentDay
+		} else {
+			return "", errors.New("problem hasn't been released yet")
+		}
+	}
+	
 	if isValidDay && isValidYear {
 		return fmt.Sprintf("%s/%s/day/%s/input", siteURL, strconv.Itoa(year), strconv.Itoa(day)), nil
 	}
@@ -56,13 +72,21 @@ func getURL(year int, day int) (string, error) {
 	return "", errors.New("invalid date")
 }
 
-// checks for the most recent year of aoc
 func getCurrentYear(currentTime time.Time) int {
 	if currentTime.Month() == time.December && currentTime.Day() >= 1 {
 		return currentTime.Year()
 	} else {
 		return currentTime.Year() - 1
 	}
+}
+
+func getCurrentESTDay() (int, error) {
+	et, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		return 0, err
+	}
+
+	return time.Now().In(et).Day(), nil
 }
 
 func getRequestData(token string, url string) (string, error) {
