@@ -1,4 +1,4 @@
-package main
+package aogdata
 
 import (
 	"compress/gzip"
