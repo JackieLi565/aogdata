@@ -1,6 +1,6 @@
 # Advent Of Go Data
 
-The purpose of this module is to allow users to request data from [Advent of Code]() using their session token.
+The purpose of this module is to allow users to request data from [Advent of Code](https://adventofcode.com/) using their session token.
 
 ## Getting Started
 
@@ -33,4 +33,5 @@ Advent of Code gives each individual user a unique set of data. To access this d
 
 ## More to Come
 
-Sometimes, parsing data from a string can be annoying, taking time and the fun away from solving the logic of the problem itself. In the future I plan to add support for users to have access to pre-formatted data.
+[ ] - Support for pre-formate data.
+[ ] - Option to use test cases.

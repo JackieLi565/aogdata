@@ -13,18 +13,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const siteURL = "https://adventofcode.com"
+const RootURL = "https://adventofcode.com"
 
 func NewAOCData(year int, day int) (string, error) {
+	filterYear, filterDay, err := validateDate(year, day)
+	if err != nil {
+		return "", err
+	}
+
 	token, err := getSessionToken()
 	if err != nil {
 		return "", err
 	}
 
-	url, err := getURL(year, day)
-	if err != nil {
-		return "", err
-	}
+	url := getURL(filterYear, filterDay)
 
 	data, err := getRequestData(token, url)
 	if err != nil {
@@ -44,8 +46,8 @@ func getSessionToken() (string, error) {
 	return os.Getenv("AOC_SESSION"), nil
 }
 
-func getURL(year int, day int) (string, error) {
-	currentYear := getCurrentYear(time.Now())
+func validateDate(year int, day int) (string, string, error) {
+	currentYear := getMostRecentYear(time.Now())
 	isValidYear := year >= 2015 && year <= currentYear
 	isValidDay := day >= 1 && day <= 25
 
@@ -53,7 +55,7 @@ func getURL(year int, day int) (string, error) {
 	if year == currentYear {
 		currentDay, err := getCurrentESTDay()
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 
 		isValidCurrentDay := day >= 1 && day <= currentDay
@@ -61,18 +63,22 @@ func getURL(year int, day int) (string, error) {
 		if isValidCurrentDay {
 			isValidDay = isValidCurrentDay
 		} else {
-			return "", errors.New("problem hasn't been released yet")
+			return "", "", errors.New("problem hasn't been released yet")
 		}
 	}
-	
-	if isValidDay && isValidYear {
-		return fmt.Sprintf("%s/%s/day/%s/input", siteURL, strconv.Itoa(year), strconv.Itoa(day)), nil
-	}
 
-	return "", errors.New("invalid date")
+	if isValidDay && isValidYear {
+		return strconv.Itoa(year), strconv.Itoa(day), nil
+	} else {
+		return "", "", errors.New("invalid date")
+	}
 }
 
-func getCurrentYear(currentTime time.Time) int {
+func getURL(year string, day string) string {	
+	return fmt.Sprintf("%s/%s/day/%s/input", RootURL, year, day)
+}
+
+func getMostRecentYear(currentTime time.Time) int {
 	if currentTime.Month() == time.December && currentTime.Day() >= 1 {
 		return currentTime.Year()
 	} else {
